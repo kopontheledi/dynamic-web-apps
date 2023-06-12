@@ -5,11 +5,9 @@ const page = {
 const matches = {
     data: books,
 };
+
 //created 'BookElement' function
-/*
-*This function takes a book object as input and creates an HTML element for the book.
-*It returns a button element with the book's image, title, and author information.
-*/
+
 function BookElement({ author, id, image, title }) {
     const element = document.createElement('button');
     element.classList = 'preview';
@@ -27,6 +25,10 @@ function BookElement({ author, id, image, title }) {
     return element;
 }
 //Update functions:
+/**
+ * The updateListButton, updateListItems, and updateListMessage functions abstract different aspects of updating the book list. They handle updating the "Show more" button text and disabled state, updating the book elements displayed on the page, and showing or hiding a message based on the number of matches or books, respectively. These functions help modularize the code and improve readability.
+ */
+
 //Updates the text and disabled state of the "Show more" button based on the remaining books to be displayed.
 function updateListButton() {
     const remaining = matches.data.length - page.number * BOOKS_PER_PAGE;
@@ -51,40 +53,44 @@ function updateListMessage() {
     if (matches.data.length < 1) {
         message.classList.add('list__message_show');
     } else {
-        message.classList.remove('list__message_show');
+        message.classList.remove('list__message_show'); 
     }
 }
-//Calls the above three update functions to update the entire book list.
+
+
 function updateList() {
     updateListItems();
     updateListButton();
     updateListMessage();
 }
 //Event handler functions:
-//Handles the click event on the "Show more" button to load and display the next set of books.
+
+/**
+ * The handleListButtonClick, handleSearchCancel, handleSettingsCancel, handleHeaderSearchClick, handleHeaderSettingsClick, handleSettingsFormSubmit, and handleSearchFormSubmit functions abstract event handling for various user interactions, such as button clicks, form submissions, and overlay toggling. These functions provide clear event handling logic and improve code organization.
+ */
 function handleListButtonClick() {
     page.number += 1;
     updateListItems();
     updateListButton();
 }
-//Handles the cancellation of the search overlay by closing it.
+//handleSearchCancel
 function handleSearchCancel() {
     document.querySelector('[data-search-overlay]').open = false;
 }
-//Handles the cancellation of the settings overlay by closing it.
+//handleSettingsCancel
 function handleSettingsCancel() {
     document.querySelector('[data-settings-overlay]').open = false;
 }
-//Handles the click event on the search icon in the header by opening the search overlay.
+//handleHeaderSearchClick
 function handleHeaderSearchClick() {
     document.querySelector('[data-search-overlay]').open = true;
     document.querySelector('[data-search-title]').focus();
 }
-//Handles the click event on the settings icon in the header by opening the settings overlay.
+//handleHeaderSettingsClick
 function handleHeaderSettingsClick() {
     document.querySelector('[data-settings-overlay]').open = true;
 }
-//Handles the submission of the settings form by changing the theme and closing the settings overlay.
+//handleSettingsFormSubmit
 function handleSettingsFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -98,7 +104,7 @@ function handleSettingsFormSubmit(event) {
     }
     document.querySelector('[data-settings-overlay]').open = false;
 }
-//Handles the submission of the search form by applying the search filters, updating the list, and closing the search overlay.
+//handleSearchFormSubmit
 function handleSearchFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -125,8 +131,15 @@ function handleSearchFormSubmit(event) {
     updateList();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.querySelector('[data-search-overlay]').open = false;
+
 }
-//Handles the click event on a book element in the list by displaying the book preview.
+
+
+//Handles the click event on a book element in the list by displaying the book preview. Function 4
+
+/**
+ * The handleListItemsClick function abstracts the logic for handling the click event on a book element in the list. It retrieves the book information based on the clicked element, updates the book preview, and handles the closing action. This function encapsulates the behavior of book item clicks.
+ */
 function handleListItemsClick(event) {
     const pathArray = Array.from(event.path || event.composedPath());
     let active = null;
@@ -148,21 +161,9 @@ function handleListItemsClick(event) {
         document.querySelector('[data-list-active]').open = false
     })
 }
-//Home button (3)
-const homeButton = document.querySelector('[class="header__text"]');
-homeButton.addEventListener('click',()=>{
-document.querySelector("[data-list-items]").style.display = "block";
-document.querySelector("[data-list-items]").style.display = "grid";
-document.querySelector("[data-list-message]").style.display = "none";
-document.querySelector('[data-list-button]').disabled = false
-})
+
 
 // Initialization
-/*
-*The initialize function is called when the page loads and sets up the initial state of the application.
-*It creates the book elements for the first page, populates the genre and author dropdowns for search filters,
-sets the initial theme based on the user's preference, and attaches event listeners to various elements.
-*/
 function initialize() {
     const starting = document.createDocumentFragment();
     for (const book of matches.data.slice(0, BOOKS_PER_PAGE)) {
