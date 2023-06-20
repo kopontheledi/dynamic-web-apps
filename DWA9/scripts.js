@@ -138,35 +138,66 @@ function handleSearchFormSubmit(event) {
 //Handles the click event on a book element in the list by displaying the book preview. Function 4
 
 /**
+ * book preview
  * The handleListItemsClick function abstracts the logic for handling the click event on a book element in the list. It retrieves the book information based on the clicked element, updates the book preview, and handles the closing action. This function encapsulates the behavior of book item clicks.
  */
-//abstraction
-function updateBookPreview(book) {
-    document.querySelector('[data-list-active]').open = true;
-    document.querySelector('[data-list-blur]').src = book.image;
-    document.querySelector('[data-list-image]').src = book.image;
-    document.querySelector('[data-list-title]').innerText = book.title;
-    document.querySelector('[data-list-subtitle]').innerText = `${authors[book.author]} (${new Date(book.published).getFullYear()})`;
-    document.querySelector('[data-list-description]').innerText = book.description;
+
+// const ListHandler = {
+//     handleListItemsClick(event) {
+//       const pathArray = Array.from(event.path || event.composedPath());
+//       let active = null;
+//       for (const node of pathArray) {
+//         if (active) break;
+//         if (node?.dataset?.preview) {
+//           active = books.find((book) => book.id === node.dataset.preview);
+//         }
+//       }
+//       if (active) {
+//         document.querySelector('[data-list-active]').open = true;
+//         document.querySelector('[data-list-blur]').src = active.image;
+//         document.querySelector('[data-list-image]').src = active.image;
+//         document.querySelector('[data-list-title]').innerText = active.title;
+//         document.querySelector('[data-list-subtitle]').innerText = `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
+//         document.querySelector('[data-list-description]').innerText = active.description;
+//       }
+//       document.querySelector('[data-list-close]').addEventListener('click', () => {
+//         document.querySelector('[data-list-active]').open = false;
+//       });
+//     }
+//   };
+class BookPreview extends HTMLElement {
+    connectedCallback() {
+      this.render();
+      this.querySelector('.close-button').addEventListener('click', this.closePreview.bind(this));
+    }
+  
+    render() {
+      const { image, title, author, published, description } = this.dataset;
+      this.innerHTML = `
+        <div class="preview">
+          <img class="preview__blur" src="${image}" alt="Book Preview" />
+          <div class="preview__content">
+            <img class="preview__image" src="${image}" alt="Book Preview" />
+            <div class="preview__info">
+              <h3 class="preview__title">${title}</h3>
+              <div class="preview__author">${author} (${new Date(published).getFullYear()})</div>
+              <p class="preview__description">${description}</p>
+            </div>
+            <button class="close-button">Close</button>
+          </div>
+        </div>
+      `;
+    }
+  
+    closePreview() {
+      this.style.display = 'none';
+    }
   }
   
-  function handleListItemsClick(event) {
-    const pathArray = Array.from(event.path || event.composedPath());
-    let active = null;
-    for (const node of pathArray) {
-      if (active) break;
-      if (node?.dataset?.preview) {
-        active = books.find((book) => book.id === node.dataset.preview);
-      }
-    }
-    if (active) {
-      updateBookPreview(active);
-    }
-    document.querySelector('[data-list-close]').addEventListener('click', () => {
-      document.querySelector('[data-list-active]').open = false;
-    });
-  }
+  customElements.define('book-preview', BookPreview);
   
+
+
 
 // Initialization
 function initialize() {
@@ -218,6 +249,17 @@ function initialize() {
     document.querySelector('[data-header-settings]').addEventListener('click', handleHeaderSettingsClick);
     document.querySelector('[data-settings-form]').addEventListener('submit', handleSettingsFormSubmit);
     document.querySelector('[data-search-form]').addEventListener('submit', handleSearchFormSubmit);
-    document.querySelector('[data-list-items]').addEventListener('click', handleListItemsClick);
+    // document.querySelector('[data-list-items]').addEventListener('click', handleListItemsClick);
+    // document.querySelector('[data-list-items]').addEventListener('click', ListHandler.handleListItemsClick);
+    document.querySelector('[data-list-items]').addEventListener('click', (event) => {
+        if (event.target.classList.contains('preview__image')) {
+          const bookPreviewElement = event.target.closest('book-preview');
+          if (bookPreviewElement) {
+            bookPreviewElement.closePreview();
+          }
+        }
+      });
+      
 }
 initialize();
+
