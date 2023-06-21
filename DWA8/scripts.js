@@ -142,7 +142,40 @@ function handleSearchFormSubmit(event) {
  * The handleListItemsClick function abstracts the logic for handling the click event on a book element in the list. It retrieves the book information based on the clicked element, updates the book preview, and handles the closing action. This function encapsulates the behavior of book item clicks.
  */
 
-const ListHandler = {
+// const ListHandler = {
+//     handleListItemsClick(event) {
+//       const pathArray = Array.from(event.path || event.composedPath());
+//       let active = null;
+//       for (const node of pathArray) {
+//         if (active) break;
+//         if (node?.dataset?.preview) {
+//           active = books.find((book) => book.id === node.dataset.preview);
+//         }
+//       }
+//       if (active) {
+//         document.querySelector('[data-list-active]').open = true;
+//         document.querySelector('[data-list-blur]').src = active.image;
+//         document.querySelector('[data-list-image]').src = active.image;
+//         document.querySelector('[data-list-title]').innerText = active.title;
+//         document.querySelector('[data-list-subtitle]').innerText = `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
+//         document.querySelector('[data-list-description]').innerText = active.description;
+//       }
+//       document.querySelector('[data-list-close]').addEventListener('click', () => {
+//         document.querySelector('[data-list-active]').open = false;
+//       });
+//     }
+//   };
+  
+
+class ListHandler extends HTMLElement {
+    connectedCallback() {
+      this.addEventListener('click', this.handleListItemsClick);
+    }
+  
+    disconnectedCallback() {
+      this.removeEventListener('click', this.handleListItemsClick);
+    }
+  
     handleListItemsClick(event) {
       const pathArray = Array.from(event.path || event.composedPath());
       let active = null;
@@ -153,18 +186,21 @@ const ListHandler = {
         }
       }
       if (active) {
-        document.querySelector('[data-list-active]').open = true;
-        document.querySelector('[data-list-blur]').src = active.image;
-        document.querySelector('[data-list-image]').src = active.image;
-        document.querySelector('[data-list-title]').innerText = active.title;
-        document.querySelector('[data-list-subtitle]').innerText = `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
-        document.querySelector('[data-list-description]').innerText = active.description;
+        this.querySelector('[data-list-active]').open = true;
+        this.querySelector('[data-list-blur]').src = active.image;
+        this.querySelector('[data-list-image]').src = active.image;
+        this.querySelector('[data-list-title]').innerText = active.title;
+        this.querySelector('[data-list-subtitle]').innerText = `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
+        this.querySelector('[data-list-description]').innerText = active.description;
       }
-      document.querySelector('[data-list-close]').addEventListener('click', () => {
-        document.querySelector('[data-list-active]').open = false;
+      this.querySelector('[data-list-close]').addEventListener('click', () => {
+        this.querySelector('[data-list-active]').open = false;
       });
     }
-  };
+  }
+  
+  // Define custom element
+  customElements.define('list-handler', ListHandler);
   
 
 

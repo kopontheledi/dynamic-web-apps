@@ -165,38 +165,75 @@ function handleSearchFormSubmit(event) {
 //       });
 //     }
 //   };
-class BookPreview extends HTMLElement {
+
+
+
+// class BookPreview extends HTMLElement {
+//     connectedCallback() {
+//       this.render();
+//       this.querySelector('.close-button').addEventListener('click', this.closePreview.bind(this));
+//     }
+  
+//     render() {
+//       const { image, title, author, published, description } = this.dataset;
+//       this.innerHTML = `
+//         <div class="preview">
+//           <img class="preview__blur" src="${image}" alt="Book Preview" />
+//           <div class="preview__content">
+//             <img class="preview__image" src="${image}" alt="Book Preview" />
+//             <div class="preview__info">
+//               <h3 class="preview__title">${title}</h3>
+//               <div class="preview__author">${author} (${new Date(published).getFullYear()})</div>
+//               <p class="preview__description">${description}</p>
+//             </div>
+//             <button class="close-button">Close</button>
+//           </div>
+//         </div>
+//       `;
+//     }
+  
+//     closePreview() {
+//       this.style.display = 'none';
+//     }
+//   }
+  
+//   customElements.define('book-preview', BookPreview);
+  
+class ListHandler extends HTMLElement {
     connectedCallback() {
-      this.render();
-      this.querySelector('.close-button').addEventListener('click', this.closePreview.bind(this));
+      this.addEventListener('click', this.handleListItemsClick);
     }
   
-    render() {
-      const { image, title, author, published, description } = this.dataset;
-      this.innerHTML = `
-        <div class="preview">
-          <img class="preview__blur" src="${image}" alt="Book Preview" />
-          <div class="preview__content">
-            <img class="preview__image" src="${image}" alt="Book Preview" />
-            <div class="preview__info">
-              <h3 class="preview__title">${title}</h3>
-              <div class="preview__author">${author} (${new Date(published).getFullYear()})</div>
-              <p class="preview__description">${description}</p>
-            </div>
-            <button class="close-button">Close</button>
-          </div>
-        </div>
-      `;
+    disconnectedCallback() {
+      this.removeEventListener('click', this.handleListItemsClick);
     }
   
-    closePreview() {
-      this.style.display = 'none';
+    handleListItemsClick(event) {
+      const pathArray = Array.from(event.path || event.composedPath());
+      let active = null;
+      for (const node of pathArray) {
+        if (active) break;
+        if (node?.dataset?.preview) {
+          active = books.find((book) => book.id === node.dataset.preview);
+        }
+      }
+      if (active) {
+        this.querySelector('[data-list-active]').open = true;
+        this.querySelector('[data-list-blur]').src = active.image;
+        this.querySelector('[data-list-image]').src = active.image;
+        this.querySelector('[data-list-title]').innerText = active.title;
+        this.querySelector('[data-list-subtitle]').innerText = `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
+        this.querySelector('[data-list-description]').innerText = active.description;
+      }
+      this.querySelector('[data-list-close]').addEventListener('click', () => {
+        this.querySelector('[data-list-active]').open = false;
+      });
     }
   }
   
-  customElements.define('book-preview', BookPreview);
+  // Define custom element
+  customElements.define('list-handler', ListHandler);
   
-
 
 
 // Initialization
@@ -250,16 +287,8 @@ function initialize() {
     document.querySelector('[data-settings-form]').addEventListener('submit', handleSettingsFormSubmit);
     document.querySelector('[data-search-form]').addEventListener('submit', handleSearchFormSubmit);
     // document.querySelector('[data-list-items]').addEventListener('click', handleListItemsClick);
-    // document.querySelector('[data-list-items]').addEventListener('click', ListHandler.handleListItemsClick);
-    document.querySelector('[data-list-items]').addEventListener('click', (event) => {
-        if (event.target.classList.contains('preview__image')) {
-          const bookPreviewElement = event.target.closest('book-preview');
-          if (bookPreviewElement) {
-            bookPreviewElement.closePreview();
-          }
-        }
-      });
-      
+    document.querySelector('[data-list-items]').addEventListener('click', ListHandler.handleListItemsClick);
 }
+
 initialize();
 
